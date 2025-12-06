@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tips Sehat & Artikel - Kusda Gym</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary-teal: #00bfa6;
+            --teal-dark: #008f7a;
+            --accent-yellow: #fbc02d;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            padding-top: 80px; /* Spacer Navbar */
+            background-color: #f4f4f4;
+            min-height: 100vh;
+        }
+
+        /* --- NAVBAR STYLE (STANDAR) --- */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: var(--primary-teal) !important;
+            transform: translateY(-2px);
+        }
+        .btn-nav-login {
+            background-color: var(--primary-teal);
+            color: white; border: none; transition: 0.3s;
+        }
+        .btn-nav-login:hover { background-color: var(--teal-dark); color: white; }
+
+        /* --- PAGE HEADER --- */
+        .page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1470&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .page-header h1 { font-weight: 800; font-size: 3rem; text-transform: uppercase; margin-bottom: 10px; }
+        .page-header p { font-size: 1.2rem; opacity: 0.9; }
+
+        /* --- ARTICLE LAYOUT --- */
+        .blog-container { max-width: 900px; margin: 0 auto; }
+
+        .article-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+        .article-img-wrapper {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        .article-img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .article-card:hover .article-img { transform: scale(1.05); }
+
+        .category-badge {
+            position: absolute; top: 20px; left: 20px;
+            background: var(--primary-teal); color: white;
+            padding: 5px 15px; border-radius: 50px;
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .article-content { padding: 30px; }
+        .article-title { font-weight: 800; color: #333; margin-bottom: 15px; font-size: 1.8rem; }
+        .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .article-meta i { color: var(--primary-teal); }
+        
+        .article-text { color: #555; line-height: 1.8; font-size: 1rem; }
+        .highlight-box {
+            background-color: #e0f2f1;
+            border-left: 4px solid var(--primary-teal);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .highlight-box h5 { color: var(--teal-dark); font-weight: 700; margin-bottom: 10px; }
+        .highlight-box ul { margin-bottom: 0; padding-left: 20px; }
+
+        /* Footer */
+        footer { background-color: #212529; color: var(--light-bg); padding: 40px 20px; text-align: center; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark" style="background-color: rgba(0,0,0,0.9); border-bottom: 2px solid #00bfa6; backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="../landingpage/index.html" style="color: #00bfa6; font-size: 1.5rem; letter-spacing: 1px;">
+                <i class="fas fa-dumbbell me-2"></i>KUSDA GYM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 text-uppercase small">
+                    <li class="nav-item"><a class="nav-link" href="../Landing Page/index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Pembuatan List Workout/listmaker.html">Workout Plan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Maps/maps.html">Lokasi</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="../Login-Register/loginregister.html" class="btn btn-sm rounded-pill px-4 py-2 fw-bold btn-nav-login">Login / Join</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>KNOWLEDGE BASE</h1>
+            <p>Kumpulan artikel, tips, dan panduan untuk mencapai versi terbaik dirimu.</p>
+        </div>
+    </header>
+
+    <div class="container blog-container">
+
+        <article class="article-card">
+            <div class="article-img-wrapper">
+                <span class="category-badge">Latihan</span>
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470" class="article-img" alt="Latihan">
+            </div>
+            <div class="article-content">
+                <h2 class="article-title">Pentingnya Latihan Rutin</h2>
+                <div class="article-meta">
+                    <span><i class="far fa-user"></i> Admin Kusda</span>
+                    <span><i class="far fa-clock"></i> 5 Menit Baca</span>
+                </div>
+                <div class="article-text">
+                    <p>Olahraga bukan sekadar membentuk tubuh, tapi juga investasi jangka panjang bagi kesehatan. Dengan latihan rutin, sistem kardiovaskular bekerja lebih efisien, otot lebih kuat, dan daya tahan meningkat. Aktivitas fisik juga menurunkan risiko penyakit kronis seperti obesitas, diabetes, dan tekanan darah tinggi.</p>
+                    <div class="highlight-box">
+                        <h5>💡 Tips Pro:</h5>
+                        <ul>
+                            <li>Mulailah latihan ringan 3x seminggu.</li>
+                            <li>Tingkatkan intensitas perlahan (Progressive Overload).</li>
+                            <li>Konsisten lebih penting daripada intensitas di awal.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="article-img-wrapper">
+                <span class="category-badge">Nutrisi</span>
+                <img src="../Landing Page/image/background.jpg" class="article-img" alt="Hidrasi">
+            </div>
+            <div class="article-content">
+                <h2 class="article-title">Hidrasi: Kunci Performa Tubuh</h2>
+                <div class="article-meta">
+                    <span><i class="far fa-user"></i> Dr. Nutrition</span>
+                    <span><i class="far fa-clock"></i> 3 Menit Baca</span>
+                </div>
+                <div class="article-text">
+                    <p>Air penting bagi setiap sel tubuh. Saat latihan, cairan keluar lewat keringat. Jika tak segera diganti, performa menurun dan risiko cedera meningkat. Hidrasi cukup menjaga suhu tubuh dan fungsi sendi agar tetap optimal.</p>
+                    <div class="highlight-box">
+                        <h5>💡 Tips Hidrasi:</h5>
+                        <ul>
+                            <li>Minum 1–2 gelas air 30 menit sebelum latihan.</li>
+                            <li>Tambah minuman elektrolit jika latihan lebih dari 1 jam.</li>
+                            <li>Cek warna urin; jika pekat, tubuh butuh cairan.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="article-img-wrapper">
+                <span class="category-badge">Recovery</span>
+                <img src="https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=1470" class="article-img" alt="Tidur">
+            </div>
+            <div class="article-content">
+                <h2 class="article-title">Tidur Berkualitas untuk Pemulihan</h2>
+                <div class="article-meta">
+                    <span><i class="far fa-user"></i> Coach Sleep</span>
+                    <span><i class="far fa-clock"></i> 4 Menit Baca</span>
+                </div>
+                <div class="article-text">
+                    <p>Banyak yang lupa bahwa otot tumbuh saat kita tidur, bukan saat latihan. Tidur membantu perbaikan jaringan dan produksi hormon pertumbuhan. Kurang tidur dapat menurunkan fokus, metabolisme, dan meningkatkan risiko cedera.</p>
+                    <div class="highlight-box">
+                        <h5>💡 Rutinitas Tidur:</h5>
+                        <ul>
+                            <li>Usahakan tidur 7–9 jam setiap malam.</li>
+                            <li>Hindari gadget & kafein 30 menit sebelum tidur.</li>
+                            <li>Buat kamar gelap dan sejuk (suhu ideal 20-22°C).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="article-img-wrapper">
+                <span class="category-badge">Diet</span>
+                <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1470" class="article-img" alt="Makanan">
+            </div>
+            <div class="article-content">
+                <h2 class="article-title">Pola Makan Seimbang</h2>
+                <div class="article-meta">
+                    <span><i class="far fa-user"></i> Chef Healthy</span>
+                    <span><i class="far fa-clock"></i> 6 Menit Baca</span>
+                </div>
+                <div class="article-text">
+                    <p>Nutrisi seimbang adalah bahan bakar utama tubuh. Kombinasikan karbohidrat kompleks (nasi merah, oat), protein (ayam, telur, tempe), lemak sehat (alpukat, kacang-kacangan), serta vitamin dari sayur dan buah.</p>
+                    <div class="highlight-box">
+                        <h5>💡 Aturan Makan:</h5>
+                        <ul>
+                            <li>Gunakan prinsip 80% makan sehat, 20% makanan kesukaan.</li>
+                            <li>Kurangi makanan olahan dan gula berlebih.</li>
+                            <li>Jangan skip sarapan, terutama jika latihan pagi.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="article-img-wrapper">
+                <span class="category-badge">Safety</span>
+                <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1470" class="article-img" alt="Pemanasan">
+            </div>
+            <div class="article-content">
+                <h2 class="article-title">Pemanasan & Pendinginan</h2>
+                <div class="article-meta">
+                    <span><i class="far fa-user"></i> Physio Team</span>
+                    <span><i class="far fa-clock"></i> 3 Menit Baca</span>
+                </div>
+                <div class="article-text">
+                    <p>Jangan pernah meremehkan pemanasan! Pemanasan meningkatkan sirkulasi darah dan mempersiapkan otot untuk beban berat. Pendinginan membantu menurunkan detak jantung secara bertahap dan membuang asam laktat.</p>
+                    <div class="highlight-box">
+                        <h5>💡 Rutinitas Wajib:</h5>
+                        <ul>
+                            <li>Pemanasan Dinamis: Jumping jack, arm circles (5-10 menit).</li>
+                            <li>Pendinginan Statis: Tahan gerakan stretching (5-10 menit).</li>
+                            <li>Gunakan Foam Roller untuk melemaskan otot kaku.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <p class="mb-2 fw-bold text-white">KUSDA GYM</p>
+            <p class="small text-secondary mb-0">&copy; 2025 Kusda Gym. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Generator - Kusda Gym</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary-teal: #00bfa6; 
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            padding-top: 80px; 
+            background-color: #f4f4f4;
+            min-height: 100vh;
+            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        /* --- STYLE NAVBAR --- */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: var(--primary-teal) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-nav-login {
+            background-color: var(--primary-teal);
+            color: white; border: none; transition: 0.3s;
+        }
+        .btn-nav-login:hover { background-color: #008f7a; color: white; }
+
+        /* --- STYLE HALAMAN --- */
+        .main-card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1); overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .page-header-title {
+            color: var(--primary-teal); font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+
+        /* Sidebar & Grid */
+        .exercise-sidebar {
+            height: 600px; overflow-y: auto; border-right: 1px solid #dee2e6;
+            background-color: #fcfcfc; padding: 15px;
+        }
+        .exercise-item {
+            display: flex; align-items: center; background: white; border: 1px solid #eee;
+            border-radius: 12px; padding: 10px; margin-bottom: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .exercise-item:hover, .exercise-item.active {
+            border-color: var(--primary-teal); transform: translateX(5px); background-color: #e0f2f1;
+        }
+        .exercise-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
+
+        .week-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+            padding: 10px; background: #f8f9fa; border-top: 1px solid #dee2e6;
+        }
+        @media (max-width: 992px) { .week-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
+
+        .day-column {
+            background: white; border-radius: 8px; border: 1px solid #e9ecef; 
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .day-header {
+            background: #212529; color: white; text-align: center; padding: 8px 5px;
+            font-weight: bold; font-size: 0.8rem; text-transform: uppercase;
+        }
+        .workout-list { padding: 5px; font-size: 0.75rem; height: 250px; overflow-y: auto; background-color: #fff; }
+        
+        .workout-chip {
+            background: #fff; border-left: 3px solid var(--primary-teal);
+            padding: 6px; margin-bottom: 6px; border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;
+        }
+
+        /* Style Generator Otomatis */
+        .option-card {
+            border: 2px solid #eee; border-radius: 12px; padding: 20px;
+            cursor: pointer; transition: 0.2s; text-align: center; height: 100%;
+        }
+        .option-card:hover { border-color: var(--primary-teal); background: #e0f2f1; }
+        .option-input:checked + .option-card {
+            background-color: var(--primary-teal); color: white; border-color: var(--primary-teal);
+            box-shadow: 0 5px 15px rgba(0, 191, 166, 0.3);
+        }
+        .option-input { display: none; }
+        
+        .btn-sky { background-color: var(--primary-teal); color: white; border: none; font-weight: 600; }
+        .btn-sky:hover { background-color: #008f7a; color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark" style="background-color: rgba(0,0,0,0.9); border-bottom: 2px solid #00bfa6; backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="../Landing Page/index.html" style="color: #00bfa6; font-size: 1.5rem; letter-spacing: 1px;">
+                <i class="fas fa-dumbbell me-2"></i>KUSDA GYM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 text-uppercase small">
+                    <li class="nav-item"><a class="nav-link" href="../Landing Page/index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="listmaker.html">Workout Plan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Maps/maps.html">Lokasi</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="../Login-Register/loginregister.html" class="btn btn-sm rounded-pill px-4 py-2 fw-bold btn-nav-login">Login / Join</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="main-card">
+            
+            <div class="p-4 border-bottom text-center bg-white">
+                <h1 class="page-header-title h2">PERENCANA LATIHAN</h1>
+                <p class="text-muted mb-0 small">Atur jadwal manual atau biarkan kami buatkan untuk Anda.</p>
+            </div>
+
+            <ul class="nav nav-tabs nav-fill" id="planTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-content" type="button" style="color:var(--primary-teal); font-weight:600;">
+                        <i class="fas fa-edit me-2"></i>Workspace Latihan (Manual)
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="auto-tab" data-bs-toggle="tab" data-bs-target="#auto-content" type="button" style="color:var(--primary-teal); font-weight:600;">
+                        <i class="fas fa-robot me-2"></i>Generator Otomatis
+                    </button>
+                </li>
+            </ul>
+
+            <div class="card-body p-0">
+                <div class="tab-content">
+                    
+                    <div class="tab-pane fade show active" id="manual-content">
+                        <div class="row g-0">
+                            <div class="col-md-4 exercise-sidebar">
+                                <input type="text" class="form-control mb-3" placeholder="Cari latihan..." id="searchExercise">
+                                <div id="exerciseList"></div>
+                            </div>
+
+                            <div class="col-md-8 p-4 bg-white" style="height: 600px; overflow-y: auto;">
+                                <h5 class="border-start border-4 ps-3 mb-4" style="border-color: var(--primary-teal) !important;">Edit Detail</h5>
+                                
+                                <div id="emptyState" class="text-center py-5 text-muted">
+                                    <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                                    <p>Klik latihan di kiri untuk menambahkan ke jadwal.</p>
+                                </div>
+
+                                <div id="configForm" style="display:none;">
+                                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+                                        <img src="" id="previewImg" class="rounded me-3" width="80" height="80" style="object-fit:cover;">
+                                        <div>
+                                            <h4 id="previewName" class="mb-0 fw-bold">Name</h4>
+                                            <span id="previewMuscle" class="badge bg-secondary">Muscle</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-6">
+                                            <label class="small fw-bold">Sets</label>
+                                            <input type="number" id="inputSets" class="form-control" value="3">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="small fw-bold">Reps</label>
+                                            <input type="number" id="inputReps" class="form-control" value="12">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold">Hari</label>
+                                            <select id="inputDay" class="form-select">
+                                                <option value="senin">Senin</option>
+                                                <option value="selasa">Selasa</option>
+                                                <option value="rabu">Rabu</option>
+                                                <option value="kamis">Kamis</option>
+                                                <option value="jumat">Jumat</option>
+                                                <option value="sabtu">Sabtu</option>
+                                                <option value="minggu">Minggu</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button onclick="addToManualSchedule()" class="btn btn-sky">Tambahkan ke Jadwal</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="week-grid" id="main-grid">
+                            <div class="day-column"><div class="day-header">SENIN</div><div class="workout-list" id="day-senin"></div></div>
+                            <div class="day-column"><div class="day-header">SELASA</div><div class="workout-list" id="day-selasa"></div></div>
+                            <div class="day-column"><div class="day-header">RABU</div><div class="workout-list" id="day-rabu"></div></div>
+                            <div class="day-column"><div class="day-header">KAMIS</div><div class="workout-list" id="day-kamis"></div></div>
+                            <div class="day-column"><div class="day-header">JUMAT</div><div class="workout-list" id="day-jumat"></div></div>
+                            <div class="day-column"><div class="day-header">SABTU</div><div class="workout-list" id="day-sabtu"></div></div>
+                            <div class="day-column"><div class="day-header">MINGGU</div><div class="workout-list" id="day-minggu"></div></div>
+                        </div>
+                        
+                        <div class="p-3 bg-light text-end border-top">
+                             <button onclick="clearSchedule()" class="btn btn-outline-danger rounded-pill px-4 fw-bold me-2"><i class="fas fa-trash me-2"></i>RESET</button>
+                             <button onclick="saveSchedule()" class="btn btn-success rounded-pill px-4 fw-bold"><i class="fas fa-save me-2"></i>SIMPAN</button>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade p-5" id="auto-content">
+                        <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+                            <h4 class="mb-4 fw-bold text-dark">Generator Jadwal Pintar</h4>
+                            
+                            <h6 class="text-start text-muted mb-3"><i class="fas fa-layer-group me-2"></i>Pengalaman</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="w-100"><input type="radio" name="level" value="beginner" class="option-input" checked><div class="option-card"><h5>Pemula</h5><small>Baru mulai</small></div></label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="w-100"><input type="radio" name="level" value="advanced" class="option-input"><div class="option-card"><h5>Mahir</h5><small>Sudah rutin</small></div></label>
+                                </div>
+                            </div>
+
+                            <h6 class="text-start text-muted mb-3"><i class="fas fa-calendar-alt me-2"></i>Frekuensi Latihan</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-4"><label class="w-100"><input type="radio" name="days" value="3" class="option-input" checked><div class="option-card"><h3>3</h3><small>Hari</small></div></label></div>
+                                <div class="col-4"><label class="w-100"><input type="radio" name="days" value="4" class="option-input"><div class="option-card"><h3>4</h3><small>Hari</small></div></label></div>
+                                <div class="col-4"><label class="w-100"><input type="radio" name="days" value="5" class="option-input"><div class="option-card"><h3>5</h3><small>Hari</small></div></label></div>
+                            </div>
+
+                            <button onclick="generatePlan()" class="btn btn-sky btn-lg px-5 rounded-pill shadow">
+                                <i class="fas fa-magic me-2"></i>Generate ke Workspace
+                            </button>
+                            <p class="text-muted mt-3 small">Hasil akan ditransfer ke tab "Workspace" untuk Anda tinjau.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- DATA LATIHAN ---
+        // Jika pakai gambar offline, gunakan: "../landingpage/ui/nama_gambar.jpg"
+        const exercises = [
+            { id: 1, name: "Bench Press", muscle: "Chest", img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=150" },
+            { id: 2, name: "Squat", muscle: "Legs", img: "https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?w=150" },
+            { id: 3, name: "Deadlift", muscle: "Back", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=150" },
+            { id: 4, name: "Pull Up", muscle: "Back", img: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExMVFhUXGRgXFxcYGBgdGBgXGBcXGBcXFRgaHSggGBolHRcVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGxAQGy0lHyUtLS0tLy0vLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIALcBEwMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAGAAMEBQcCAQj/xABLEAABAwIEAgYGBwMJBwUBAAABAAIRAwQFEiExBkETIlFhcYEHMpGhscEUI1KS0eHwQnKCFmKTorLC0tPxJDM0U4PD41RjlKOzF//EABoBAAIDAQEAAAAAAAAAAAAAAAECAAMEBQb/xAAnEQACAgEDBAICAwEAAAAAAAAAAQIRAxIhMQQTQVEiMhRhI3GRM//aAAwDAQACEQMRAD8AxuwuHU3Bw5Inwqsa+rjDRqSeZgIZfELq3ru2kgbwqZKyqSsK754Y0a6T81EbirC4CNQqzEL81Ggdn5qAAQQVWse24qx7bhbTrc50U5rgWH4n5KiovdULW028tSr/AAzA31NM2gVMopbiNIgUK5JPIDdWlSk3IC48tAvMWwg0ABPfKh0qb3tknXkFW6qwVuV9xRLXCDMnbsVy2k6oA3s5KHUsXsIcdVYUqbmMJA1dz8u9ByXC5IVtzYua7tTVCpLspbJKu8Et3h+ZzTUEbDv93kmX0ZuC4NLTyC0Ri6tjUNXeHkNBywFXVbVqLr20eGZXHf3c0K4jppExsrY8bkVjbbUtGhldPsy7YpWNxIhyuLNjAPHZRqyN0D5w4gyExcWmsnVXIc4OLTtK8vWsa3mSUP0FMHalMAp2h37JXlHKJCgG4KZFi3LG6YD6pVjh4GWDuodPCiW5wXezQqZTDmMJLdUjjSJIKsHoDJmyjxVpdHNSPRQCAgqwxPMQBMHcIltK8SB2a+xZ5Y3qKpLSDlPH61PMxzpXOF3BfV63MJq+w49Psde1WTbLoiCRqrdSQ6SY/dWGvWA30I8V41xFUAHTs5bpm8vHVHAjSFZWlsagHbyKevYJY2qsuMJu2iQYB7PNU2NZaTjUHPcSmOJaT6GUzvzCDMVv6r93HyKWEKlqiPGFBFU4ljRqosVxF1Q6qoD10yoTur22PR2a0DTmo73Ewn20pK5eyEEQbyr1OALxGyHLyIEBcNBJ2gKY2zcGzkfP7p0HadF1So7pXIrexDNMgLq1PWAI3UyZENUKpTIOu6nOwU7CXDgfUpjfUnuRZgIdnbTGkHXv1QVw9fikdZ2Ou60Lg+3c+tLW6byq1jAob2R+NrR4aXuJPJo2ED/VCTLzqATBEfmtk4zwsOoEkSQFk7bIT1gNfchkgkCcUM295LcpOvKSmvpFV/Ume7tXV1ah1UMpgxzIWk8KcFsbD36n8tYSwxWhVEH+H72vQb0YoEyfW5we7mpDrmH53M1HaFqVOwZHVaFQ1MJDnu0mTCvlB0GSZnuI4q57pI01A/NUjsoJB1nZaXxZgbGUdgDy/JZ27DjM66dqV/FitVyQzh081060qfsnZSqNo8unkpLLctO6rlk0gb2I7KRcRmGqT4mCNAjejwmG61bmmxuUExq4EjbKY1nkptPDsKdFPdx/bLnBx1nWdBO3mipN7lscE2ZVilFpGgQ5XIBiFtHE3o8ayka1o9z2tBc9jiCcoj1CBqRrof8AXJ72wEzKtTHUGnQY8OYtR6ANyifL3pnG7ikWSAEKUH9HoCmcRa+MxOnNUrD8rsmhIkYRTL60MBgcxy8UUYiX25Dolvb5Id4ZxboI6kjtRXivElvVpFvOFJuSfAk7bGaGNMrua3LqOfyRdZYY2o0S2QVmfDIJrCNp9y33A7FuRp8FFj1MGncG6PB1I6ZYT1vwh0Z01COBRAXbgFo7aqi3+zDePMPcDBcY5eSzOsTMLevShh7HUXPmHAaLBqw1Q0qOxExlwXTU4AvCNUSHdNhnRSX2pyl0Lu2aRDuxHeB21OvSDC3Xw5wYQW4GzMYcktppcA0yAY5BJPpJZa2LpeB2gjXUaiNllvE1gyhdV6VMdQO0HYHMDo8BmgeC03D3AVWknQGdN09ifAf0io+tLQXxp1tIaB2dyz4YuXBq6xLYxrCaTXHINCT80T0+ExUqj7IA17dURH0TVhUD2VKQE8y8H3NWh4fghY1rXBvVjafmFd22Y9jC8QwJ1CqBGgOnfqto4KsGtpBwbEgH3LjHOFTWcCMojxn4K7wyh0LAzXRMoMa0iPxNbufSIaJKyi8sC1+UgTGy1K6xRxqGnGVmvW57du0yq6nVokgua1zgSC7K3tOh07x7lHXkftN8ARguCVGxVLNZny1/JaPgFw17Y27lJbf28AAE6DYD2e5Rqd5QY6QHj+H800ccqtIq2i6YQU2QIXLKAGoVUeJaA/5n3EhxPQPKp9z80/bl6Drj7B/0gQ0BziSRsOSCLIOrOLSQ0HwR3xLUbcgNYCP3hCFXcJ3GYFjmAAiZJGnk1ZM2DI5bJlE3b2G7nC+jbAdJURuI07Xr1GBzy09G0iRJkZjPYjC+p06NLpK8NDdyDOvYBGqyTibGzXqOdsAQGjcNYPVA8iZ7yVXh6aTl/Ith8caeobxLGqtRxJe7UnmdeeigUb97XB2aTvq47jXZQKjzvv8ArZMZvfH5ro0lsW227NR4Y4+rscA6MpI3J1nlz1R7f4Na4lblzKbG1dSHhgBJ1MEg6yeevMhfPVnXLXRJAJ17IWnejfiF1Op0ZJcZjU6QR2TvtusuWGn5I0Qlr+L5Bu0wRri5pBzNJbHYRoQVXYlhzw4tI0W44vw5SNcXLQB0mr99Xcz2bQqzGuHm1fVIB75+QKshBtWjPJ06ZkVrajIQRsN/mqj6Oc0QtVrcEVC4Q+nl5+vt9xP3HCTIA0kb6O37tEXik/AutFPwNhIOpbryWx4XRysAQXgdFtCAZPgD7pCKGY9TaPUqeTfzRjhkvAFJey4IXFQwFVVOIGQYa+eUjTXaVWtvIc2Kp2Phmd+0Z3UktPJdCOtbAZ6Srl73dG0FZrc4U5rTnEd63KrWYDSFVofObWDmkuaNDOw1Md6j4/we24aQx4ZPawn5hIo6uATjo5Pn8Bc0hJWpO9D1Q7XbR/0T/mL2l6HnDe8b/Q/+RHty9CakZ5b1NI3Wo+jy9pZQx0ZtNfgow9Ees/TP/pH+Yrzh/gVts/M64z92Rrf75UjjadgckHdNogQko7bho009oXis0smpAPQdDp8fgU/gthiVSk2oyu0NdMB1V4IAJGsUyOSiN31/WhRxwoItaY/e/tFYunb4Oh1atJlC/DMV36anp2Vqnv8Aq9+9O0LLFB+3SPjWqf5SMAvVq1Mw0gUNpif2qP8ASv8A8pcOsMUP7VH+lf8A5aLwugpqYNKAF9C4p1MtyWS4Zm5HEjfmSBr5J1tX7I8fFX3FlhnY2oN6Z172uIHuMe9D1RgadRp3LNNPUb8TTihdFUqPaylUDCdCC/LJOwAEknQ8lKfw7fE/76P+of8ACrfAMDaCKzjMgOYOyQDJ7wZHlPgQFW49VbsozOGrZAGeGr//AJw++7z5JO4bvojpG/0p/wACO0lZv7ZVa9Iz+5we+pjMXzHZVd/hVbaY68y3O+RpHSc/urTLpstKyHF7fJVqZNDKqyaq2bDfpI447vnutwMzvXBILwREOHYNtFlb36mfbrqtEbaGoHNrHQtOXQmHfsxqB7TCzzEWOa8tgiJ0/Hu1TYZtqpPcXncbpv5bT3JxrGwDOhP6EeSi0/L5eCdp02mBoD2c/BX2ChzNJIA1GwjcfHmrPAcS6KqyoI6usE6ef4KpIaOYnsnUEbhGfo44UZeVoqOLWCDA9bwkyI3STkktx4Jt7Go8OYjdX9IvhrKbSGsAJH7OpmCSdYUy4wys0znOnIVnf4Fe2OHUrWiKVFuVjdtZJ7yeZQtjOLnreyFXo9NheWvC/wAKnFcWNGQ51TyqfCQErOnUqszsqmD9qq+R/VOvmgrEHvrvJjWPIKVhb69MZTIEJd15Yry/pf4FljZ1HaCsZ10c957p2VlbcIVyP98NRze/5BVWCW9Q5X5SR7wtIsX9QJlftkU78Izu8w6pRrinUfmAbmJDnRJmAQd9NZ8E/cuBEHb5Ih4rote0PbGdv9ZvYfD8UNGkHRAOqzzUnLc6GJw7aaHcLsalV5pseBoXFztS0aDqjt1AU+54cuGiRVYY5EOVpwxhZp5qrtC4ZWj+buT5kD2K9cJCvxQ23MmadypGVm4uZc3qDL4qvs7u7ql0ZND2EytLvcEa6SN1CwvAejJParKZnsFKeD3rhm6RgnlkP4p+w4euqhINw1n/AEZ/vhaC2mAIhespDdGiAZ/Iy4/9a3/4/wD5F4jZeo0QzNo1R3w5/wAO3uLh/WKBWuhHHDB/2dvi74rFg5Oh1X1RbBerwLpajCILoLxehREQ3fgdDUnbI+fulAlHbbdG+LPy0Kp/mO94j5oBtgQTIgCR466frvQnG9zRhfg0PDD9TT/dCkFRMGfNCme6PYSFLKK4KZcs8SKSSIo3X9UrK8Vq/XP8Vpd3eMgjMJ7vxQTc4Ax7y414kzAZPvzBJP8ARZGLB03ImIVRi+Civo0RUJidg4HkTvIIHdqexFt/wfVA6Sg9tYDUtAyvjuaZnyKjWYiCRqI9yq3TGpIx7EMNqU3lj2kFvrA8u/4e1Q+hnUAaazP5brWfSBwo2rVa+S3Qg6H7Ry67DT5IAqcJOnSpp+u9WwyXFNkniqTSO+G+HKl44sptgNALnbNaCd3E6BfQvB3ClOxphres8tGZx7TqQB2LKOB8ANOvTIquIDg51MF5a9wiC9oOoEDlyC3yPl8FKcnvwB/FUinxm4yiO1DrsANSSeaLsQtWOEuIEJpt1TAgE+wprXkq0N70A1jw41tR2mnzCmHCG1H5IjSETWdNgcTmEnxHxU5lm0OzAao0LpZCwjDBSaGxsrCozSAnlyVBqKO8w+Q5x5Nd8Ch1oBAhG2IGKTz/ADXfBBFF+qrlHc1YPqwxwofU0/D5lSk1YVA6kwjsjzB1TqtXBmnyzxy5XRXKIh4WpQvUiiQ5Xi9XihDNBy/XYjXhT/h2+LkGAfrzRlwo/wCoImcryPc0/NYsHJ0eq+pdBerwFJajCdBdBchehQhTcYXGW3y/bcB5Agn5IUqmFe8eOhlLszO92Qoeq1JASyfg04VtYWcI4iHNNI7jVvf2j5oiKy+3vDSIePWGoVzc4/UqxPVHNrdvbuUVwLPHctgtrX9NmhcJ7BqfcqvEL4v0Gjezt8fwVHnMSN11bXDiDPLmPOfko7qyRglKiS8qG8GYjRN1r9rTqVMtrhrlXqRfTGbUlrhBI75U6pbU3gnSd55z49qiVpnTT9D8FTXD3NdOYgJZuuAxjbDT6MHMEwZGs6zI5hDd7wqx01GPcwHXKDIB/mg8p5T4Qrii6p9HYacZsrDrJ0kE6DUyPiole6q1Oo2kJGh60tmNtBO+msaFbV8krOa3pk6JOD27KdKWiG9p3cBu9x74JA2AASoX0STUOpmJ0HcvcWJ6ANMBzsrTGw5uA7tCPNDtSq0dUansWbPOmoo19NjuLkwmucSlvJ3eVV3GY9Zrj4Lmi05YUk5QNUv9lqVcDdtVJ3Vjh9+5ogyWyRHMAbQVSfTWB+UEJG5EmO3/AF+ashvsivItrZa4jilxT6zKTqtPk6nqfAs9YHyVDU9IIaSHMeCNwQQR4gqfbO5A8/zTGKGnUGWvTFQcifWb+68aj4dyMk1wUxx2junxMbii4tBDScsnnG8e73qLbuVfbgMApNENb6vfzk98kyp1sdNd0jvyaMaqNIIra/NOhVdvkh+nZs75FU49INDm5PMrN6K4aTq6hVAGusMcfksufZpJZdLKJw3NOHH9v9sLoceW/wBsLLDYrp2G9WYS/koTtmpfy6t/+YF23je3+2PasgdYpt1km/IJ2zZP5a0Ptt9q9WLfQ16j30DQaT+vf+SLeET9S798/wBinsg6pz/XMou4JH+za/bP9loHuAVODk3dV9S/Xq8SWswnQXS5C6UID/HFGbdrvsvH9bT4wgY3GnfstG4otjUtKoG4bnHeWEPgeIBHms2FFlQBweBpuqcjpmvp94slVBJ0VjZW8bqiN4KehMntUC64jI2KTvF/bDO4vabBBg9yob/iPKco2195MBDdXFi7cpYdh9a7f0duwudsX7MYD9t/Id255Apdcp7EkoxVjuJYmXVGtB1J+AJV/hlV4jVdYtwC2zpUq4e6pUDstVx0bDwIyN5AOAEmSc2vYHacASkmtLphxT17hDRqDLJ1KrsUczITPemKmItDd1Hw6obisxkdUOknubqR7venjJy+JJRUbkHOH0i2kxvNrGtPk0AqSGgaDTtTZK8jYdvwXSOQ9yk4hrA1GsnZubQ/acR/c96rm0G0yHRvzT/Ezstxm5dG32h9SfiFX3F7mbHsWDJKps6mGP8AGqLqjUBVbiYk9UqqtMZgwdFYUrgPEqqU72LIwp2CGIXZpXDZO4Me5XNvjGnaFXY/Z06pcXScgGSDBzuMSe4ND/PKqHpKlH1pcz7XZ+9+KVP0K5JScWaThmINO5/W6m3DGuGizSniw3a5SrfiJzTq5WrPLyTtR8BTUo5Xa7LqpXAOiqrfHmP0cVY0vo51zapu5qBool3NyxlrcVHDrCnDT2dI4Uz7n+5Z+cTaiDie/D6D6bAYL6bSTz9dx97WIKNoq56WzNO0y9s71rjGikvv2NBbzQzRY5hkLwuM67lUSxJy/Qmplq69aFwb1irb2iC0Rv8ArdQhQPaVboRNTLs3jEkPm3d2lJHQgajWXjb9c0Y8Hf8ADn98/wBlqDqw0RVwg89GR2O/usCPT/Y1dV9UEaRK5c+FHdcgyAdQthgJDHyU8FFtKocJCktKiCOtGiAr30ZNLnGhdPpNJkMcwPDZ5A5mmPFHrV0o4qXIYyceDNaXoon/AHt7Ud+5Taz+05ydb6I7Qb17k/xU/wDLWiSvCl7cV4C8kn5AG14DsKLxnpvqRrNR5I82tgHzCN7GjTYwNpNaxg2a0ANHgBom7+1DmmVVYZiGU9G468kUkhHJvktcXt21KT2OEtcCD5/NY7VunNLqZOoJHjB3WwXtUBhM8lkOMWv1rnt+0fjKpzq0jV00mmytdZ1yf5qNuCrUgPqEdjG950Lv7vsKqrGuTDYJJ0HijOwpBuVg2bM95GhP3s6nTQuV+h+qnpjXsnsCdobkqNWqQpA0Z3lbznFRxFaZ2tPPrD2wR8Cgl1rWadRIWhYk0lsDfK5w8WlvycR5oeN2CFh6iPys6XSzuFegRvLB7jmbI7V6L8sbl57IgvLkQhq8pENfVjYdXxOg+MrNVsvlLSrHqbNNTJOp8f1C96MdoQwa9beDCdZUrHkUvbMeu9yzuMFouM5QD2tJb8NFCrcNMO1R48SCPgoVW9qgxBVhb1XFsmeRRpryBzoq6vD9VphlZp8QR+KcpYdcjR1drfCT8YUgX+VxBlN3F9OoTVLyL3Wixo22VoBcXd5XbbVQ7W6LmkrylcuG6Gh8sPcTJL7NVOKjJEbyrZ+JgEDtVVVpOq1Z5DZRwZXKaaoIMK4dqVKJqabaDtVZSw3NPIhTcP4qq0j0UCDofxCk4vW6NhfIkqyeNuPxApoq+ja3TsSVI/EyTKSXUxrRqFZuiuMHxBlGnDnQXOnx6rR8QVVVUFcc3DhXpgHQUwY789TX3BDC6bZr6x1A0i/4nBflYQYOvYFGbiD2XLMvWD9/xWT07pwaXSZ5qywfGnMeyoXExpBV7nbObqNzw+szWCNVNa7VYxacVvFYuBJYSJH4diKb7jim1og7+1OpoZMMquO02vyEqULzMA5uxWTYddOuqjySQ0DQc57SUc8MYvTyGkT1m6Ed6eE7A2FDJiUmVweeq4o3bC3QoJ4ix00rim1rgASZn4JpOiXQdvOizrj2s+j16ejp3V/W4kYKeaRO+6zribiwVzljYnzVcpLgEmGGH4g+tQGZ+uWDHaqu7pQYPYEHYBjNTpA3N1exHFW0fWc3KIGUS47Aa7DcnuSyi5LYv6eai7ZzglLLmqkSGeqO15Gg9k+5FGGthriTPKe2NCfMyfNUtaGZKbfVZLj2kt5nvzho/iVy7qUmt5x7ytWLHojQmXJrlY7aNzOJ5BS7l2oC8tKeVoCZqOl/grCobxF5GQjeSP6jnfFgQ7itFrDmb6jtR3E6lvvkdxV/ih6re51P2F4Yfc4qrfRLmatLgDlc0Ak6HqkR3EfoKvJj1xotxZHCVg69uYqLjdOKTG7ZnHzyjX2Zh7QiuzwhgcZb3w4kx+8AYHgSSexD3pPuRT+itGgAqnQAb9FyCyvA4q2XZuoUo0ihvqGRkpzBTnkATG6rH3xqMjfRMYHiLqT3COXak0puzKpFniTQXRpI08V4SGt7IVQ25c6s5089Qvby8zEgHQJbi2K5PyP3FJj+ajXdHK3TVRqdE7hym2urDm15KLcOp0LCriert3rrFXdbLTgxvCbuLFzYcNioda46IntPxR03yxbFcViCDuVY4Ze53AAdb5c0PiuA8EmZRPhmFgEXAcGwDGvuKWU9G7ArG7uzPSOc4ajmB7CrJ+FmtbkufrGnlyjsTb8caKZYQCXbO+E9irW3lQCATB71emg2VX0EjTsSU7XtSSbDa/0aNVKBuO62W4pyNOi/7lRHLkE+kJhfWpRqeij2Pes+PlnS6z/mDtGvqdOqUjcz1WhN9KRDCITtlWa0xElXNJLY5aLGwGmu68vLckpurcZe5SLRwqGJQb9kbOMPvalI9Ukd6mULiq3M8OMlV9Xq5mn2qEcTcGQNUyWyBe4R4ZxTXYcpe6FGxW8e9+cku7yq3pMzAQE5ZUy7QoOXgmoffduDc06bwoF1iLag00PZ3rrErZ7BAJylVTLZwOqZVyMixwiu5tVp5LZMCrNdRDo64dlB/muyyB3z28pWMUHw5s9q2PgyPo2c7CoT7Gs/E+xXYeRlwO0KeatHIuDf4WAPcfP6rzCuoz1QOQ1PyVZgzJc5x0gR4Of9bU9mZjfJWuH+q6od3HTw5LWKTyVCYZLipD3QFFtzoe8oIgzizvq3dzC77nW+S5qZAdXuaTJysnM4bDbYRHYvcRbIDftB7fa0hTsOdmY06SWgwRrqOR7JlEgxbUSY6oa0bNHxceZQB6Tnh1Wm2NmF3kXlvwYFpx2Kyf0n18ty1v8A7DI+/UVGb6AlxsClpcZXRGikdE1zi6QFW1HQ2Uw2d5WJSpULZLpuDXESqy8qEOOX1ZXRr5SZ1T9lcNdJO2vuUir3RLPbe6IA0ML26xOYDE5dXLXNAAgKpc9oJjVGyKQQ3GIubTbJlVFyXVdhChV7l7nabBejEXN0ATUFImWeHEtJO8wFZ3vS02taZIPZ296pLLEXlwHYZV5bYwKjsr4nYIaLe4HsVBFQv1VyzSOcDZRseYWAOGs7KDYveSSN4R00EtDi4H7KShtZTHretzSRp+yWaq936/JCPFr/AK1kkD6sn+u+EVVHQs/9Irz0lKDH1Z//AEes+Lk63Vq4UVz6jKnPrBSqFgMwcPf70N0GuDg5EtG8Abr5K2SOZJUeYiA4gHde2YDNOZK7rVGP686kQq+4uCHBsHtCjRXXgua4yg5gDIVCKTp0boeSt7W4DhLpXbiWjOACEK8IA3St2tA5SpFs8Md3bKDd3DnFp2B9wUj6NBjcEIKHsBeYk5nRwR5ocxSgAyQdVM+mOADXCQn7u1FRkhP5DYC07l2YSea3rgd4FhTJ9War3eAlvyKx24wQ5gRyK2bhSiG4dRZzLST3k1SY85hacLTexbaos7Smejj9p518XHM/2beStGAZg0bMHvUfRmu5AhveTEn2lo810TkYddT7zuVpAdVamjneK4o6MCaunQyP3R5lPP0AChBm+dHRnsqN98hS8Of+ydt2H3Ob7Qq7ETLf4mH7r2k+6VKoCJHNrsw8HbqELGpz/XNZT6Vmjp6Tu2m6PAVHR7itTNURPmsh9Lz4r27ObaWvmR+BVOb6MDAf6Q4ktATopktiIKfsA0balXTrRoZmkT2LElZXJg7StAJzFR2UG5jGyfumEmCSO5WowprqYIMHT4oatIyZXtwqvlP1byOWnLkoeH4RXJOai/7pW4sLejaT63VAA2jLumJIU7iXg6C6JNcmSU7OqOqaD/ule/QI3ovnl1T+C1hzj2riUryew/gr2ZBVwqrmllN4/hP4KI7CKrXElj539UraXPKi1KzpiD48kVl9E/CryZQ+5quyB1J5g69U+au6FIyCym4TH7JCPDK5zHtUc7A+i/YBXWHHMZYfYV4jzMUkdZPwv2eVX9oQJx66atOPsf8Acekkkw8mjqPqDuIvMA7QmbCuXuhx05JJLS/qc+WxbVGBsEeamtdLQ7KJ2SSVPgpOrIwYeN+QTjszQ4D1SkkivYrRGpkEEcwnraoWmQZXqSnIj4Hqj+kOmik3jXU2gykkit2CyBXxMU2ydSrPCuO6tKkxjaTXNBJEuIOrs0bHnKSS04FTHivjZb0PSY4uBfanTsqDft1b3n3dimH0kUD61Gs0AQIyHfcnrDVepLWkC2O//wBEtCQXdKAHZj1BvlMDRyfqekS15NrH+Fv+JJJRINsrrj0hsMhlu8yf2nNHdyB5KFd+kC5PqU6TI2kucdfCJ5pJJtKoXUyM3ji8nV1E92R8fFU/FmIvuKratQNBcwMhswMpM76/te9JJUZ0u2wp7lZQhvNWlaC3QmV4ksQJIfsMNEZ3+5OYm4hoI0HJJJZnyGw4tHE0ma65R8E3XrltNzidWgn2JJJfJ6FfWylHGlt9p33SvP5aWv2nfdKSSfQijvSOTxla/ad90rw8X2v23fdd+CSSmkndZz/K62+077rvwXP8qbf7R+6UklGgrKzz+U9v9o/dckkkgHuM/9k=" },
+            { id: 5, name: "Overhead Press", muscle: "Shoulder", img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=150" },
+            { id: 6, name: "Dumbbell Curl", muscle: "Bicep", img: "https://images.unsplash.com/photo-1581009137042-c552e485697a?w=150" },
+            { id: 7, name: "Tricep Pushdown", muscle: "Tricep", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150" }
+        ];
+
+        let currentExercise = null;
+        const daysArr = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+
+        window.onload = function() {
+            initManual();
+            loadSchedule();
+        };
+
+        // --- FUNGSI MANUAL ---
+        function initManual() {
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = '';
+            exercises.forEach(ex => {
+                list.innerHTML += `
+                    <div class="exercise-item" onclick="selectManualEx(${ex.id}, this)">
+                        <img src="${ex.img}" class="exercise-thumb">
+                        <div><strong>${ex.name}</strong><br><small>${ex.muscle}</small></div>
+                    </div>`;
+            });
+        }
+
+        function selectManualEx(id, el) {
+            document.querySelectorAll('.exercise-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            currentExercise = exercises.find(e => e.id === id);
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('configForm').style.display = 'block';
+            document.getElementById('previewImg').src = currentExercise.img;
+            document.getElementById('previewName').innerText = currentExercise.name;
+            document.getElementById('previewMuscle').innerText = currentExercise.muscle;
+        }
+
+        function addToManualSchedule() {
+            if(!currentExercise) return;
+            const day = document.getElementById('inputDay').value;
+            const sets = document.getElementById('inputSets').value;
+            const reps = document.getElementById('inputReps').value;
+            const target = document.getElementById(`day-${day}`);
+            
+            target.innerHTML += createWorkoutChip(currentExercise.name, sets, reps);
+        }
+
+        // --- FUNGSI GENERATOR OTOMATIS ---
+        function generatePlan() {
+            const level = document.querySelector('input[name="level"]:checked').value;
+            const days = parseInt(document.querySelector('input[name="days"]:checked').value);
+            
+            let activeDays = [];
+            if(days === 3) activeDays = [0, 2, 4]; // Sen, Rab, Jum
+            else if(days === 4) activeDays = [0, 1, 3, 4]; 
+            else if(days === 5) activeDays = [0, 1, 2, 4, 5]; 
+
+            // Loop 7 hari dan isi ke GRID
+            daysArr.forEach((dayName, i) => {
+                const target = document.getElementById(`day-${dayName}`);
+                target.innerHTML = ''; 
+
+                if(activeDays.includes(i)) {
+                    let workoutType = "Full Body";
+                    if(level === 'advanced' && days >= 4) workoutType = (i % 2 === 0) ? "Upper Body" : "Lower Body";
+                    
+                    target.innerHTML += `<div class="bg-dark text-white text-center p-1 mb-2 rounded sticky-top" style="font-size:0.7rem;">${workoutType}</div>`;
+
+                    const count = 5;
+                    const shuffled = exercises.sort(() => 0.5 - Math.random()).slice(0, count);
+                    
+                    shuffled.forEach(w => {
+                        target.innerHTML += createWorkoutChip(w.name, 3, 12);
+                    });
+                } else {
+                    target.innerHTML += `
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-bed fa-2x mb-2"></i><br>REST
+                        </div>
+                    `;
+                }
+            });
+
+            // Pindah tab otomatis
+            const triggerEl = document.querySelector('#manual-tab');
+            const tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Jadwal Dibuat!',
+                text: 'Silakan cek dan simpan jadwal Anda di tab Workspace.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function createWorkoutChip(name, sets, reps) {
+            return `
+                <div class="workout-chip">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong style="font-size:0.8em">${name}</strong>
+                        <i class="fas fa-times text-danger" style="cursor:pointer; font-size:0.7rem;" onclick="this.parentElement.parentElement.remove()"></i>
+                    </div>
+                    <div style="font-size:0.75rem">${sets} Sets x ${reps} Reps</div>
+                </div>
+            `;
+        }
+
+        // --- FUNGSI STORAGE & RESET ---
+        function saveSchedule() {
+            const scheduleData = {};
+            daysArr.forEach(day => {
+                const content = document.getElementById(`day-${day}`).innerHTML;
+                scheduleData[day] = content;
+            });
+            localStorage.setItem('myGymPlan', JSON.stringify(scheduleData));
+            Swal.fire({
+                title: 'Tersimpan!',
+                text: 'Jadwal latihan Anda aman di browser ini.',
+                icon: 'success',
+                confirmButtonColor: '#00bfa6'
+            });
+        }
+
+        function loadSchedule() {
+            const savedData = localStorage.getItem('myGymPlan');
+            if (savedData) {
+                const scheduleData = JSON.parse(savedData);
+                daysArr.forEach(day => {
+                    if(scheduleData[day]) {
+                        document.getElementById(`day-${day}`).innerHTML = scheduleData[day];
+                    }
+                });
+            }
+        }
+
+        // FITUR RESET JADWAL (Tambahan yang diminta)
+        function clearSchedule() {
+            Swal.fire({
+                title: 'Hapus Jadwal?',
+                text: "Semua latihan di tabel akan dihapus permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#00bfa6',
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    daysArr.forEach(day => {
+                        document.getElementById(`day-${day}`).innerHTML = '';
+                    });
+                    localStorage.removeItem('myGymPlan');
+                    Swal.fire('Terhapus!', 'Jadwal kembali kosong.', 'success');
+                }
+            })
+        }
+    </script>
+</body>
+</html>

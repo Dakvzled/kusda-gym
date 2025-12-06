@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Menu Sehat - Kusda Gym</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary-teal: #00bfa6;
+            --teal-dark: #008f7a;
+            --accent-yellow: #fbc02d;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #f4f4f4;
+            color: var(--dark-text);
+            padding-top: 80px; 
+            min-height: 100vh;
+        }
+
+        /* --- NAVBAR STYLE --- */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: var(--primary-teal) !important;
+            transform: translateY(-2px);
+        }
+        .btn-nav-login {
+            background-color: var(--primary-teal);
+            color: white; border: none; transition: 0.3s;
+        }
+        .btn-nav-login:hover { background-color: var(--teal-dark); color: white; }
+
+        /* --- PAGE HEADER --- */
+        .page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1470&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .page-header h1 { font-weight: 800; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 10px; color: var(--primary-teal); }
+        .page-header p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+        /* --- SEARCH & FILTER BAR --- */
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box { flex-grow: 1; position: relative; }
+        .search-box input { 
+            width: 100%; padding: 10px 15px 10px 40px; 
+            border-radius: 50px; border: 1px solid #eee; background: #f9f9f9; 
+        }
+        .search-box input:focus { outline: none; border-color: var(--primary-teal); background: white; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+
+        .category-btn {
+            border: 1px solid #eee; background: white; padding: 8px 20px;
+            border-radius: 50px; font-size: 0.9rem; font-weight: 600; color: #555;
+            transition: 0.3s; cursor: pointer;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: var(--primary-teal); color: white; border-color: var(--primary-teal);
+        }
+
+        /* --- MENU CARDS --- */
+        .menu-item-col { transition: all 0.3s ease; } /* Animasi hide/show */
+        
+        .menu-card {
+            border: none; border-radius: 15px; overflow: hidden;
+            background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s; height: 100%; display: flex; flex-direction: column;
+        }
+        .menu-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        .card-img-wrapper { position: relative; height: 200px; overflow: hidden; }
+        .card-img-top { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .menu-card:hover .card-img-top { transform: scale(1.1); }
+
+        .nutrition-badge {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(0, 0, 0, 0.7); color: var(--accent-yellow);
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+            backdrop-filter: blur(5px);
+        }
+
+        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; color: #333; }
+        .card-text { font-size: 0.9rem; color: #666; margin-bottom: 20px; flex-grow: 1; }
+        
+        .meta-info {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; color: #888; margin-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;
+        }
+        .meta-info i { color: var(--primary-teal); margin-right: 5px; }
+
+        .btn-view {
+            width: 100%; background-color: white; 
+            border: 2px solid var(--primary-teal); color: var(--primary-teal);
+            font-weight: 700; border-radius: 10px; padding: 8px;
+            transition: 0.3s; text-decoration: none; display: block; text-align: center;
+        }
+        .btn-view:hover { background-color: var(--primary-teal); color: white; }
+
+        footer { background-color: #212529; color: var(--light-bg); padding: 40px 20px; text-align: center; margin-top: 60px; }
+        
+        /* Pesan jika tidak ada hasil */
+        #no-result { display: none; text-align: center; width: 100%; margin-top: 20px; color: #777; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark" style="background-color: rgba(0,0,0,0.9); border-bottom: 2px solid #00bfa6; backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="../landingpage/index.html" style="color: #00bfa6; font-size: 1.5rem; letter-spacing: 1px;">
+                <i class="fas fa-dumbbell me-2"></i>KUSDA GYM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 text-uppercase small">
+                    <li class="nav-item"><a class="nav-link" href="../Landing Page/index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Pembuatan List Workout/listmaker.html">Workout Plan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Maps/maps.html">Lokasi</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="../Login-Register/loginregister.html" class="btn btn-sm rounded-pill px-4 py-2 fw-bold btn-nav-login">Login / Join</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>HEALTHY EATS</h1>
+            <p>Nutrisi terbaik untuk mendukung performa latihan dan pembentukan otot Anda.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="filter-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari resep (misal: Ayam, Salad...)">
+            </div>
+            <div class="d-flex gap-2 flex-wrap" id="filterContainer">
+                <button class="category-btn active" data-filter="all">Semua</button>
+                <button class="category-btn" data-filter="high-protein">High Protein</button>
+                <button class="category-btn" data-filter="low-carb">Low Carb</button>
+                <button class="category-btn" data-filter="vegan">Vegan</button>
+            </div>
+        </div>
+
+        <div class="row g-4" id="menuContainer">
+            
+            <div class="col-12 col-md-4 menu-item-col" data-category="high-protein low-carb">
+                <div class="menu-card">
+                    <div class="card-img-wrapper">
+                        <span class="nutrition-badge"><i class="fas fa-fire me-1"></i> 450 Kcal</span>
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500" class="card-img-top" alt="Salad">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Grilled Chicken Salad</h5>
+                        <div class="meta-info">
+                            <span><i class="fas fa-clock"></i> 15 Min</span>
+                            <span><i class="fas fa-drumstick-bite"></i> 35g Protein</span>
+                        </div>
+                        <p class="card-text">Dada ayam panggang dengan sayuran segar, alpukat, dan dressing lemon vinaigrette yang ringan.</p>
+                        <a href="#" class="btn btn-view">Lihat Resep <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 menu-item-col" data-category="high-protein">
+                <div class="menu-card">
+                    <div class="card-img-wrapper">
+                        <span class="nutrition-badge"><i class="fas fa-fire me-1"></i> 520 Kcal</span>
+                        <img src="https://images.unsplash.com/photo-1543353071-087092ec393a?q=80&w=500" class="card-img-top" alt="Quinoa">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Salmon Quinoa Bowl</h5>
+                        <div class="meta-info">
+                            <span><i class="fas fa-clock"></i> 25 Min</span>
+                            <span><i class="fas fa-drumstick-bite"></i> 28g Protein</span>
+                        </div>
+                        <p class="card-text">Salmon pan-seared kaya omega-3 disajikan di atas quinoa hangat dan edamame.</p>
+                        <a href="#" class="btn btn-view">Lihat Resep <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 menu-item-col" data-category="high-protein">
+                <div class="menu-card">
+                    <div class="card-img-wrapper">
+                        <span class="nutrition-badge"><i class="fas fa-fire me-1"></i> 300 Kcal</span>
+                        <img src="https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?q=80&w=500" class="card-img-top" alt="Smoothie">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Berry Protein Smoothie</h5>
+                        <div class="meta-info">
+                            <span><i class="fas fa-clock"></i> 5 Min</span>
+                            <span><i class="fas fa-drumstick-bite"></i> 20g Protein</span>
+                        </div>
+                        <p class="card-text">Minuman pre-workout sempurna dengan campuran beri, pisang, dan whey protein.</p>
+                        <a href="#" class="btn btn-view">Lihat Resep <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 menu-item-col" data-category="vegan low-carb">
+                <div class="menu-card">
+                    <div class="card-img-wrapper">
+                        <span class="nutrition-badge"><i class="fas fa-fire me-1"></i> 380 Kcal</span>
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500" class="card-img-top" alt="Veggie">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Tofu Stir Fry</h5>
+                        <div class="meta-info">
+                            <span><i class="fas fa-clock"></i> 20 Min</span>
+                            <span><i class="fas fa-leaf"></i> Vegan</span>
+                        </div>
+                        <p class="card-text">Tumis tahu dan brokoli dengan saus bawang putih yang gurih dan rendah kalori.</p>
+                        <a href="#" class="btn btn-view">Lihat Resep <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div id="no-result">
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <h4>Menu tidak ditemukan</h4>
+            <p>Coba kata kunci lain atau ubah filter kategori.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <p class="mb-2 fw-bold text-white">KUSDA GYM</p>
+            <p class="small text-secondary mb-0">&copy; 2025 Kusda Gym. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.category-btn');
+            const menuItems = document.querySelectorAll('.menu-item-col');
+            const searchInput = document.getElementById('searchInput');
+            const noResult = document.getElementById('no-result');
+
+            // 1. FILTER BUTTON LOGIC
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked
+                    btn.classList.add('active');
+                    
+                    const filterValue = btn.getAttribute('data-filter');
+                    filterMenu(filterValue, searchInput.value);
+                });
+            });
+
+            // 2. SEARCH INPUT LOGIC
+            searchInput.addEventListener('keyup', () => {
+                // Get active category
+                const activeBtn = document.querySelector('.category-btn.active');
+                const filterValue = activeBtn.getAttribute('data-filter');
+                filterMenu(filterValue, searchInput.value);
+            });
+
+            // MAIN FILTER FUNCTION
+            function filterMenu(category, searchTerm) {
+                searchTerm = searchTerm.toLowerCase();
+                let visibleCount = 0;
+
+                menuItems.forEach(item => {
+                    const itemCategory = item.getAttribute('data-category');
+                    const itemTitle = item.querySelector('.card-title').innerText.toLowerCase();
+                    const itemText = item.querySelector('.card-text').innerText.toLowerCase();
+
+                    // Check Category Match
+                    const matchesCategory = (category === 'all') || itemCategory.includes(category);
+                    
+                    // Check Search Match
+                    const matchesSearch = itemTitle.includes(searchTerm) || itemText.includes(searchTerm);
+
+                    if (matchesCategory && matchesSearch) {
+                        item.style.display = "block"; // Show
+                        visibleCount++;
+                    } else {
+                        item.style.display = "none"; // Hide
+                    }
+                });
+
+                // Show/Hide "No Result" Message
+                if (visibleCount === 0) {
+                    noResult.style.display = "block";
+                } else {
+                    noResult.style.display = "none";
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

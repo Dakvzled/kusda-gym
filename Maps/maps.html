@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokasi Gym - Kusda Gym</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary-teal: #00bfa6;
+            --teal-dark: #009688;
+            --accent-yellow: #fbc02d;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            padding-top: 80px; 
+            background-color: #f4f4f4;
+            min-height: 100vh;
+            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: var(--primary-teal) !important;
+            transform: translateY(-2px);
+        }
+        .btn-nav-login {
+            background-color: var(--primary-teal);
+            color: white; border: none; transition: 0.3s;
+        }
+        .btn-nav-login:hover { background-color: var(--teal-dark); color: white; }
+
+        /* --- MAIN LAYOUT --- */
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 50px;
+        }
+
+        .page-header {
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
+        }
+
+        .page-title {
+            color: var(--primary-teal); font-weight: 800; text-transform: uppercase; margin: 0; font-size: 1.8rem;
+        }
+
+        .search-box { position: relative; min-width: 300px; }
+        .search-box input { padding-left: 40px; border-radius: 50px; border: 1px solid #ddd; padding-top: 10px; padding-bottom: 10px; }
+        .search-box input:focus { border-color: var(--primary-teal); box-shadow: 0 0 0 3px rgba(0, 191, 166, 0.1); }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+
+        .btn-filter { background: #fff; border: 1px solid #ddd; color: #555; border-radius: 50px; padding: 8px 20px; font-weight: 600; transition: 0.2s; }
+        .btn-filter:hover { background: #f8f9fa; border-color: #ccc; }
+        .form-check-input:checked { background-color: var(--primary-teal); border-color: var(--primary-teal); }
+
+        .map-wrapper { display: flex; height: 600px; position: relative; }
+        #map { flex: 2; background: #eaf9f3; position: relative; overflow: hidden; }
+        
+        .branch-sidebar { flex: 1; background: #fff; border-left: 1px solid #eee; overflow-y: auto; padding: 0; }
+
+        /* --- STYLE LIST CABANG --- */
+        .branch-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .branch-item:hover {
+            border-left-color: var(--primary-teal);
+            transform: translateX(5px);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Saat item aktif, border kuning */
+        .branch-item.active {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .branch-content { position: relative; z-index: 2; }
+
+        /* Teks diberi shadow putih/hitam agar terbaca di atas foto */
+        .branch-name { 
+            font-weight: 900; font-size: 1.2rem; color: #111; margin-bottom: 5px; 
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+        }
+        .branch-meta { 
+            font-size: 0.9rem; color: #333; display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-weight: 600; 
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+        }
+        
+        .status-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; margin-top: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .status-open { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .status-closed { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+        .map-zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 10; }
+        .btn-zoom { width: 40px; height: 40px; border-radius: 8px; border: none; background: white; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: bold; font-size: 1.2rem; transition: 0.2s; }
+        .btn-zoom:hover { background: var(--primary-teal); color: white; }
+
+        @media (max-width: 992px) {
+            .map-wrapper { flex-direction: column; height: auto; }
+            #map { height: 400px; }
+            .branch-sidebar { height: 350px; border-left: none; border-top: 1px solid #eee; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark" style="background-color: rgba(0,0,0,0.9); border-bottom: 2px solid #00bfa6; backdrop-filter: blur(10px);">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="../landingpage/index.html" style="color: #00bfa6; font-size: 1.5rem; letter-spacing: 1px;">
+                <i class="fas fa-dumbbell me-2"></i>KUSDA GYM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 text-uppercase small">
+                    <li class="nav-item"><a class="nav-link" href="../Landing Page/index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../Pembuatan List Workout/listmaker.html">Workout Plan</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="maps.html">Lokasi</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="../Login-Register/loginregister.html" class="btn btn-sm rounded-pill px-4 py-2 fw-bold btn-nav-login">Login / Join</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="main-card">
+            
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-map-marked-alt me-2"></i>Lokasi Gym</h1>
+                
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input id="q" type="text" class="form-control" placeholder="Cari cabang atau kota...">
+                    </div>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="openNow">
+                        <label class="form-check-label fw-bold small text-muted" for="openNow">Buka Sekarang</label>
+                    </div>
+                    <button id="reset" class="btn btn-filter text-danger border-danger"><i class="fas fa-undo me-1"></i> Reset</button>
+                </div>
+            </div>
+
+            <div class="map-wrapper">
+                <div id="map">
+                    <div class="map-zoom-controls">
+                        <button id="zoomIn" class="btn-zoom">+</button>
+                        <button id="zoomOut" class="btn-zoom">-</button>
+                    </div>
+                </div>
+
+                <aside class="branch-sidebar" id="list">
+                    </aside>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- DATA GYM ---
+        const gyms = [
+            { id:1, name:'Kusda Gym Central', city:'Jakarta', address:'Jl. Merdeka No.1', lat:-6.2000, lng:106.8167, open:'06:00', close:'22:00', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=300' },
+            { id:2, name:'Kusda Gym South', city:'Jakarta Selatan', address:'Jl. Sudirman No.88', lat:-6.2300, lng:106.8000, open:'05:30', close:'23:00', img: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=300' },
+            { id:3, name:'Kusda Gym North', city:'Jakarta Utara', address:'Jl. Thamrin No.10', lat:-6.1700, lng:106.8220, open:'06:00', close:'21:00', img: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=300' },
+            { id:4, name:'Kusda Gym Bekasi', city:'Bekasi', address:'Bekasi Mall Lt. 3', lat:-6.2400, lng:106.9920, open:'07:00', close:'20:00', img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=300' },
+            { id:5, name:'Kusda Gym Bandung', city:'Bandung', address:'Jl. Braga No. 55', lat:-6.9147, lng:107.6098, open:'06:00', close:'22:00', img: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=300' }
+        ];
+
+        // --- MAP SETUP ---
+        const bbox = { minLat:-7.5, maxLat:-6.0, minLng:106.5, maxLng:108.0 };
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const mapEl = document.getElementById('map');
+        const svg = document.createElementNS(svgNS,'svg'); 
+        svg.setAttribute('viewBox','0 0 1000 700'); 
+        svg.setAttribute('preserveAspectRatio','xMidYMid meet'); 
+        svg.style.width='100%'; svg.style.height='100%'; svg.style.display='block'; 
+        mapEl.appendChild(svg);
+
+        const bg = document.createElementNS(svgNS,'rect'); bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',1000); bg.setAttribute('height',700); bg.setAttribute('fill','#dff6f0'); svg.appendChild(bg);
+        const land = document.createElementNS(svgNS,'path'); land.setAttribute('d','M40 560 C120 420, 300 420, 420 520 C520 590, 700 540, 920 480 L920 680 L40 680 Z'); land.setAttribute('fill','#f7fbf9'); land.setAttribute('stroke','#e6f3ef'); svg.appendChild(land);
+        const water = document.createElementNS(svgNS,'ellipse'); water.setAttribute('cx',760); water.setAttribute('cy',180); water.setAttribute('rx',160); water.setAttribute('ry',80); water.setAttribute('fill','#bfeef0'); svg.appendChild(water);
+        const river = document.createElementNS(svgNS,'path'); river.setAttribute('d','M120 80 C220 140, 280 200, 360 260 C420 300, 480 320, 560 340 C640 360, 720 360, 820 340'); river.setAttribute('stroke','#9fe6e6'); river.setAttribute('stroke-width','18'); river.setAttribute('fill','none'); river.setAttribute('stroke-linecap','round'); svg.appendChild(river);
+        const road1 = document.createElementNS(svgNS,'path'); road1.setAttribute('d','M80 520 L420 480 L640 460 L880 420'); road1.setAttribute('stroke','#f2c27d'); road1.setAttribute('stroke-width','6'); road1.setAttribute('fill','none'); svg.appendChild(road1);
+        
+        function project(lat,lng){
+            const x = ((lng - bbox.minLng)/(bbox.maxLng-bbox.minLng))*900 + 50;
+            const y = (1-((lat - bbox.minLat)/(bbox.maxLat-bbox.minLat)))*600 + 50;
+            return {x,y};
+        }
+
+        const markerLayer = document.createElementNS(svgNS,'g'); svg.appendChild(markerLayer);
+        const defs = document.createElementNS(svgNS,'defs');
+        const pin = document.createElementNS(svgNS,'g'); pin.setAttribute('id','pin');
+        const pinShadow = document.createElementNS(svgNS,'ellipse'); pinShadow.setAttribute('cx',0); pinShadow.setAttribute('cy',16); pinShadow.setAttribute('rx',10); pinShadow.setAttribute('ry',4); pinShadow.setAttribute('fill','rgba(0,0,0,0.2)'); pin.appendChild(pinShadow);
+        const pinBody = document.createElementNS(svgNS,'path'); 
+        pinBody.setAttribute('d','M0 -14 C6 -14, 10 -8, 10 -2 C10 6, 0 16, 0 16 C0 16, -10 6, -10 -2 C-10 -8, -6 -14, 0 -14 Z'); 
+        pinBody.setAttribute('fill','#00bfa6'); pinBody.setAttribute('stroke','#fff'); pinBody.setAttribute('stroke-width','1.5'); pin.appendChild(pinBody);
+        const pinDot = document.createElementNS(svgNS,'circle'); pinDot.setAttribute('cx',0); pinDot.setAttribute('cy',-6); pinDot.setAttribute('r',3.2); pinDot.setAttribute('fill','#fff'); pin.appendChild(pinDot);
+        defs.appendChild(pin); svg.appendChild(defs);
+
+        const markerEls = {};
+        const listEl = document.getElementById('list');
+
+        function nowIsBetween(open,close){
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2,'0');
+            const mm = String(now.getMinutes()).padStart(2,'0');
+            const cur = hh+':'+mm;
+            return cur >= open && cur <= close;
+        }
+
+        // --- RENDER MARKER & LIST (REVISI OPASITAS GAMBAR) ---
+        function addMarker(g){
+            // 1. Map Pin
+            const p = project(g.lat,g.lng);
+            const group = document.createElementNS(svgNS,'g'); 
+            group.setAttribute('transform',`translate(${p.x},${p.y})`); 
+            const pinClone = pin.cloneNode(true); pinClone.removeAttribute('id'); group.appendChild(pinClone);
+            
+            // Tooltip
+            const tbox = document.createElementNS(svgNS,'rect'); tbox.setAttribute('x',20); tbox.setAttribute('y',-35); tbox.setAttribute('width',180); tbox.setAttribute('height',30); tbox.setAttribute('rx',5); tbox.setAttribute('fill','white'); tbox.setAttribute('stroke','#ccc'); tbox.setAttribute('opacity','0'); tbox.setAttribute('class','tooltip-bg'); group.appendChild(tbox);
+            const ttext = document.createElementNS(svgNS,'text'); ttext.setAttribute('x',28); ttext.setAttribute('y',-15); ttext.setAttribute('font-size',12); ttext.setAttribute('fill','#333'); ttext.setAttribute('opacity','0'); ttext.textContent = g.name; ttext.setAttribute('class','tooltip-text'); group.appendChild(ttext);
+            
+            markerLayer.appendChild(group);
+            markerEls[g.id] = group;
+
+            group.addEventListener('mouseenter',()=>{ 
+                group.querySelector('.tooltip-bg').setAttribute('opacity','1'); 
+                group.querySelector('.tooltip-text').setAttribute('opacity','1'); 
+            });
+            group.addEventListener('mouseleave',()=>{ 
+                group.querySelector('.tooltip-bg').setAttribute('opacity','0'); 
+                group.querySelector('.tooltip-text').setAttribute('opacity','0'); 
+            });
+            group.addEventListener('click', () => focusOn(g.id));
+
+            // 2. Sidebar List Item
+            const openNow = nowIsBetween(g.open, g.close);
+            const statusClass = openNow ? 'status-open' : 'status-closed';
+            const statusText = openNow ? '<i class="fas fa-check-circle me-1"></i> BUKA' : '<i class="fas fa-times-circle me-1"></i> TUTUP';
+
+            const item = document.createElement('div'); 
+            item.className = 'branch-item'; 
+            item.dataset.id = g.id;
+            
+            // OPASITAS DEFAULT: 80% Putih (0.8) agar gambar terlihat samar
+            item.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('${g.img}')`;
+
+            item.innerHTML = `
+                <div class="branch-content">
+                    <div class="branch-name">${g.name}</div>
+                    <div class="branch-meta"><i class="fas fa-map-marker-alt text-teal" style="color:#00bfa6"></i> ${g.city}</div>
+                    <div class="branch-meta"><i class="far fa-clock"></i> ${g.open} - ${g.close}</div>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+            `;
+            
+            item.addEventListener('click', () => focusOn(g.id));
+            listEl.appendChild(item);
+        }
+
+        // --- FOCUS FUNCTION (REVISI OPASITAS AKTIF) ---
+        function focusOn(id){
+            // Reset All Pins & Items
+            Object.values(markerEls).forEach(e => {
+                const path = e.querySelector('path');
+                if(path) path.setAttribute('fill','#00bfa6');
+                e.setAttribute('transform', e.getAttribute('transform').replace('scale(1.3)', 'scale(1)'));
+            });
+            
+            // Highlight Active Pin
+            const el = markerEls[id]; 
+            if(el) {
+                const path = el.querySelector('path');
+                if(path) path.setAttribute('fill','#fbc02d'); // Yellow
+            }
+            
+            // Reset All Items Background to Default (0.8 / 80% Putih)
+            document.querySelectorAll('.branch-item').forEach(i => {
+                i.classList.remove('active');
+                const url = i.style.backgroundImage.split(', url')[1];
+                i.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url${url}`;
+            });
+
+            // Highlight Active Item (0.5 / 50% Putih -> Gambar lebih jelas)
+            const listItem = document.querySelector(`.branch-item[data-id="${id}"]`);
+            if(listItem) {
+                listItem.scrollIntoView({behavior:'smooth', block:'center'});
+                listItem.classList.add('active');
+                const url = listItem.style.backgroundImage.split(', url')[1];
+                listItem.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), url${url}`;
+            }
+        }
+
+        // Render Initial
+        gyms.forEach(addMarker);
+
+        const q = document.getElementById('q');
+        const openToggle = document.getElementById('openNow');
+        
+        function applyFilters(){ 
+            const term = (q.value||'').toLowerCase(); 
+            listEl.innerHTML=''; 
+            
+            gyms.forEach(g => { 
+                const hay = (g.name+' '+g.city+' '+g.address).toLowerCase(); 
+                const isOpen = nowIsBetween(g.open, g.close);
+                const show = (!term || hay.includes(term)) && (!openToggle.checked || isOpen);
+                
+                markerEls[g.id].style.display = show ? 'block' : 'none'; 
+                if(show) addMarker(g);
+            });
+        }
+
+        q.addEventListener('input', applyFilters);
+        openToggle.addEventListener('change', applyFilters);
+        document.getElementById('reset').addEventListener('click', () => { q.value=''; openToggle.checked=false; applyFilters(); });
+
+        const zoomIn = document.getElementById('zoomIn');
+        const zoomOut = document.getElementById('zoomOut');
+        function setZoom(factor){ 
+            const view = svg.getAttribute('viewBox').split(' ').map(Number); 
+            const cx = view[0] + view[2]/2; const cy = view[1] + view[3]/2; 
+            const nw = Math.max(240, Math.min(1000, view[2]*factor)); 
+            const nh = Math.max(168, Math.min(700, view[3]*factor)); 
+            const nx = Math.max(0, Math.min(1000-nw, cx - nw/2)); 
+            const ny = Math.max(0, Math.min(700-nh, cy - nh/2)); 
+            svg.setAttribute('viewBox', `${nx} ${ny} ${nw} ${nh}`); 
+        }
+        zoomIn.addEventListener('click', ()=> setZoom(0.75)); 
+        zoomOut.addEventListener('click', ()=> setZoom(1.35));
+
+    </script>
+</body>
+</html>

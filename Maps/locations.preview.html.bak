@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kusda Gym — Map (Mock)</title>
+  <style>
+    :root{--accent:#0fb6a7;--muted:#6b6b6b}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0;background:#f8f8f8;color:#111}
+    .wrap{max-width:1100px;margin:20px auto;padding:16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:20px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .search{padding:10px 12px;border-radius:12px;border:1px solid #e6e6e6;width:260px;box-shadow:0 2px 8px rgba(16,24,40,0.06)}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:10px;text-decoration:none}
+
+    .map-area{display:flex;gap:16px;margin-top:12px}
+  #map{flex:1;height:640px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.06);background:#eaf9f3;position:relative;overflow:hidden}
+    .panel{width:360px;background:#fff;border-radius:8px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04);height:640px;overflow:auto}
+  .branch{padding:12px;border-bottom:1px solid #f5f7f6;cursor:pointer;border-radius:8px;margin-bottom:8px}
+    .branch:hover{background:#f7fffb}
+    .meta{color:var(--muted);font-size:13px;margin-top:6px}
+    .status{font-weight:700;color:#009a66}
+    .status.closed{color:#d63447}
+  .branch:focus{outline:2px solid rgba(15,182,167,0.18);box-shadow:0 6px 14px rgba(15,182,167,0.06)}
+
+    .filters{display:flex;gap:8px;align-items:center}
+
+    @media (max-width:900px){.map-area{flex-direction:column}.panel{width:100%;height:260px}#map{height:420px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Kusda Gym — Locations</h1>
+      <div class="controls">
+        <input id="q" class="search" placeholder="Search branch or city...">
+        <div class="filters">
+          <label><input id="openNow" type="checkbox"> Open now</label>
+          <a id="reset" class="btn" href="#">Reset</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="map-area">
+      <div id="map" aria-hidden="true">
+        <div id="map-controls" style="position:absolute;right:18px;top:18px;z-index:40;display:flex;flex-direction:column;gap:8px">
+          <button id="zoomIn" title="Zoom in" style="width:38px;height:38px;border-radius:8px;border:0;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.06);cursor:pointer">＋</button>
+          <button id="zoomOut" title="Zoom out" style="width:38px;height:38px;border-radius:8px;border:0;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.06);cursor:pointer">－</button>
+        </div>
+      </div>
+      <aside class="panel">
+        <h3 style="margin-top:0">Branches</h3>
+        <div id="list"></div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Clean, offline-only map mockup (enhanced UI/UX)
+    const gyms = [
+      { id:1, name:'Kusda Gym Central', city:'Jakarta', address:'Jl. Merdeka No.1', lat:-6.2000, lng:106.8167, open:'06:00', close:'22:00' },
+      { id:2, name:'Kusda Gym South', city:'Jakarta', address:'Jl. Sudirman No.88', lat:-6.2300, lng:106.8000, open:'05:30', close:'23:00' },
+      { id:3, name:'Kusda Gym North', city:'Jakarta', address:'Jl. Thamrin No.10', lat:-6.1700, lng:106.8220, open:'06:00', close:'21:00' },
+      { id:4, name:'Kusda Gym Bekasi', city:'Bekasi', address:'Bekasi Mall', lat:-6.2400, lng:106.9920, open:'07:00', close:'20:00' },
+      { id:5, name:'Kusda Gym Bandung', city:'Bandung', address:'Braga Street', lat:-6.9147, lng:107.6098, open:'06:00', close:'22:00' }
+    ];
+
+    // visual bounding box for projecting lat/lng -> svg coords
+    const bbox = { minLat:-7.5, maxLat:-6.0, minLng:106.5, maxLng:108.0 };
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const mapEl = document.getElementById('map');
+  const svg = document.createElementNS(svgNS,'svg'); svg.setAttribute('viewBox','0 0 1000 700'); svg.setAttribute('preserveAspectRatio','xMidYMid meet'); svg.style.width='100%'; svg.style.height='100%'; svg.style.display='block'; mapEl.appendChild(svg);
+
+  // simple stylized basemap (land, water, river, roads) - fully offline SVG shapes
+  const bg = document.createElementNS(svgNS,'rect'); bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',1000); bg.setAttribute('height',700); bg.setAttribute('fill','#dff6f0'); svg.appendChild(bg);
+
+  // land patch
+  const land = document.createElementNS(svgNS,'path');
+  land.setAttribute('d','M40 560 C120 420, 300 420, 420 520 C520 590, 700 540, 920 480 L920 680 L40 680 Z');
+  land.setAttribute('fill','#f7fbf9'); land.setAttribute('stroke','#e6f3ef'); land.setAttribute('stroke-width','1'); svg.appendChild(land);
+
+  // lake / sea area
+  const water = document.createElementNS(svgNS,'ellipse'); water.setAttribute('cx',760); water.setAttribute('cy',180); water.setAttribute('rx',160); water.setAttribute('ry',80); water.setAttribute('fill','#bfeef0'); water.setAttribute('opacity','0.95'); svg.appendChild(water);
+
+  // river
+  const river = document.createElementNS(svgNS,'path');
+  river.setAttribute('d','M120 80 C220 140, 280 200, 360 260 C420 300, 480 320, 560 340 C640 360, 720 360, 820 340');
+  river.setAttribute('stroke','#9fe6e6'); river.setAttribute('stroke-width','18'); river.setAttribute('fill','none'); river.setAttribute('stroke-linecap','round'); river.setAttribute('opacity','0.9'); svg.appendChild(river);
+
+  // simple roads
+  const road1 = document.createElementNS(svgNS,'path'); road1.setAttribute('d','M80 520 L420 480 L640 460 L880 420'); road1.setAttribute('stroke','#f2c27d'); road1.setAttribute('stroke-width','6'); road1.setAttribute('fill','none'); road1.setAttribute('opacity','0.95'); svg.appendChild(road1);
+  const road2 = document.createElementNS(svgNS,'path'); road2.setAttribute('d','M200 620 L360 540 L520 500 L700 480'); road2.setAttribute('stroke','#f2c27d'); road2.setAttribute('stroke-width','4'); road2.setAttribute('fill','none'); road2.setAttribute('opacity','0.85'); svg.appendChild(road2);
+
+  // small built-up areas (blocks)
+  for(let i=0;i<5;i++){ const block=document.createElementNS(svgNS,'rect'); block.setAttribute('x',120+i*90); block.setAttribute('y',420 - (i%2)*12); block.setAttribute('width',22); block.setAttribute('height',14); block.setAttribute('fill','#ffeccf'); block.setAttribute('opacity','0.9'); svg.appendChild(block); }
+
+  // north arrow
+  const na = document.createElementNS(svgNS,'g'); na.setAttribute('transform','translate(920,40)');
+  const arrow = document.createElementNS(svgNS,'path'); arrow.setAttribute('d','M0 0 L10 20 L-10 20 Z'); arrow.setAttribute('fill','#064'); na.appendChild(arrow);
+  const nLabel = document.createElementNS(svgNS,'text'); nLabel.setAttribute('x',0); nLabel.setAttribute('y',36); nLabel.setAttribute('font-size',11); nLabel.setAttribute('fill','#064'); nLabel.setAttribute('text-anchor','middle'); nLabel.textContent='N'; na.appendChild(nLabel); svg.appendChild(na);
+
+  // scale bar (bottom-left)
+  const sX = 60, sY = 660;
+  const scaleBg = document.createElementNS(svgNS,'rect'); scaleBg.setAttribute('x',sX-6); scaleBg.setAttribute('y',sY-14); scaleBg.setAttribute('width',140); scaleBg.setAttribute('height',18); scaleBg.setAttribute('fill','rgba(255,255,255,0.85)'); scaleBg.setAttribute('rx',4); svg.appendChild(scaleBg);
+  const s1 = document.createElementNS(svgNS,'rect'); s1.setAttribute('x',sX); s1.setAttribute('y',sY-10); s1.setAttribute('width',60); s1.setAttribute('height',10); s1.setAttribute('fill','#111'); svg.appendChild(s1);
+  const s2 = document.createElementNS(svgNS,'rect'); s2.setAttribute('x',sX+60); s2.setAttribute('y',sY-10); s2.setAttribute('width',60); s2.setAttribute('height',10); s2.setAttribute('fill','#fff'); s2.setAttribute('stroke','#111'); svg.appendChild(s2);
+  const sLabel = document.createElementNS(svgNS,'text'); sLabel.setAttribute('x',sX+70); sLabel.setAttribute('y',sY-18); sLabel.setAttribute('font-size',11); sLabel.setAttribute('fill','#111'); sLabel.setAttribute('text-anchor','middle'); sLabel.textContent='5 km (approx)'; svg.appendChild(sLabel);
+
+    function project(lat,lng){
+      const x = ((lng - bbox.minLng)/(bbox.maxLng-bbox.minLng))*900 + 50;
+      const y = (1-((lat - bbox.minLat)/(bbox.maxLat-bbox.minLat)))*600 + 50;
+      return {x,y};
+    }
+
+    const markerLayer = document.createElementNS(svgNS,'g'); svg.appendChild(markerLayer);
+    // marker defs: an SVG pin symbol (uses group clone)
+    const defs = document.createElementNS(svgNS,'defs');
+    const pin = document.createElementNS(svgNS,'g'); pin.setAttribute('id','pin');
+    const pinShadow = document.createElementNS(svgNS,'ellipse'); pinShadow.setAttribute('cx',0); pinShadow.setAttribute('cy',16); pinShadow.setAttribute('rx',10); pinShadow.setAttribute('ry',4); pinShadow.setAttribute('fill','rgba(2,6,23,0.15)'); pin.appendChild(pinShadow);
+    const pinBody = document.createElementNS(svgNS,'path'); pinBody.setAttribute('d','M0 -14 C6 -14, 10 -8, 10 -2 C10 6, 0 16, 0 16 C0 16, -10 6, -10 -2 C-10 -8, -6 -14, 0 -14 Z'); pinBody.setAttribute('fill','#ff7a59'); pinBody.setAttribute('stroke','#fff'); pinBody.setAttribute('stroke-width','1.5'); pin.appendChild(pinBody);
+    const pinDot = document.createElementNS(svgNS,'circle'); pinDot.setAttribute('cx',0); pinDot.setAttribute('cy',-6); pinDot.setAttribute('r',3.2); pinDot.setAttribute('fill','#fff'); pin.appendChild(pinDot);
+    defs.appendChild(pin); svg.appendChild(defs);
+    const markerEls = {};
+    const listEl = document.getElementById('list');
+
+    function nowIsBetween(open,close){
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const cur = hh+':'+mm;
+      return cur >= open && cur <= close;
+    }
+
+    // improved marker creation using symbol clone, hover tooltip, and accessible list items
+    function addMarker(g){
+      const p = project(g.lat,g.lng);
+      const group = document.createElementNS(svgNS,'g'); group.setAttribute('transform',`translate(${p.x},${p.y})`); group.setAttribute('data-id',g.id);
+      // use the pin symbol by cloning its children
+      const pinClone = pin.cloneNode(true); pinClone.removeAttribute('id'); group.appendChild(pinClone);
+      // label (hidden by default, shown on hover)
+      const tbox = document.createElementNS(svgNS,'rect'); tbox.setAttribute('x',22); tbox.setAttribute('y',-26); tbox.setAttribute('width',220); tbox.setAttribute('height',46); tbox.setAttribute('rx',6); tbox.setAttribute('fill','#ffffff'); tbox.setAttribute('stroke','#e6f3ef'); tbox.setAttribute('opacity','0'); tbox.setAttribute('class','tooltip-bg'); group.appendChild(tbox);
+      const ttext = document.createElementNS(svgNS,'text'); ttext.setAttribute('x',30); ttext.setAttribute('y',-6); ttext.setAttribute('font-size',12); ttext.setAttribute('fill','#082'); ttext.setAttribute('opacity','0'); ttext.textContent = g.name + ' — ' + g.city; ttext.setAttribute('class','tooltip-text'); group.appendChild(ttext);
+      markerLayer.appendChild(group);
+      markerEls[g.id]=group;
+
+      const openNow = nowIsBetween(g.open,g.close);
+      const item = document.createElement('div'); item.className='branch'; item.tabIndex=0; item.dataset.id=g.id;
+      item.innerHTML = `<strong>${escapeHtml(g.name)}</strong><div class="meta">${escapeHtml(g.city)} — ${escapeHtml(g.address)}</div><div class="meta">Hours: ${g.open} — ${g.close} <span class="status ${openNow? '':'closed'}">${openNow? 'OPEN':'CLOSED'}</span></div>`;
+      item.addEventListener('click',()=>focusOn(g.id));
+      // keyboard: Enter to focus, ArrowUp/Down for navigation handled globally
+      item.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); focusOn(g.id); } });
+      listEl.appendChild(item);
+
+      // svg hover to show tooltip
+      group.addEventListener('mouseenter',()=>{ const bg=group.querySelector('.tooltip-bg'); const tt=group.querySelector('.tooltip-text'); if(bg) bg.setAttribute('opacity','1'); if(tt) tt.setAttribute('opacity','1'); });
+      group.addEventListener('mouseleave',()=>{ const bg=group.querySelector('.tooltip-bg'); const tt=group.querySelector('.tooltip-text'); if(bg) bg.setAttribute('opacity','0'); if(tt) tt.setAttribute('opacity','0'); });
+      group.addEventListener('click',()=>{ focusOn(g.id); // scroll branch into view
+        const el = document.querySelector('.branch[data-id="'+g.id+'"]'); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); el && el.focus();
+      });
+    }
+
+
+    // improved focus: highlight pin color and slightly pan/zoom to it
+    function focusOn(id){
+      // reset small highlights/tooltips
+      Object.values(markerEls).forEach(e=>{ const path=e.querySelector('path'); if(path) path.setAttribute('fill','#ff7a59'); const text=e.querySelector('.tooltip-text'); if(text) text.setAttribute('opacity','0'); const bg=e.querySelector('.tooltip-bg'); if(bg) bg.setAttribute('opacity','0'); });
+      const el=markerEls[id]; if(!el) return; const path=el.querySelector('path'); if(path) path.setAttribute('fill','#ff3f1f');
+      // animate small zoom/pan towards the marker by changing viewBox center (robust parsing)
+      const view = svg.getAttribute('viewBox').split(' ').map(Number);
+      const vbW = view[2] || 1000, vbH = view[3] || 700;
+      // parse translate(x,y) safely
+      const tr = el.getAttribute('transform') || '';
+      const m = tr.match(/translate\(([-0-9.]+),\s*([-0-9.]+)\)/);
+      let px = 500, py = 350;
+      if(m && m.length >= 3){ px = Number(m[1]); py = Number(m[2]); }
+      const nx = Math.max(0, Math.min(1000 - vbW, px - vbW/2));
+      const ny = Math.max(0, Math.min(700 - vbH, py - vbH/2));
+      // animate viewBox change
+      const steps = 8; let i=0; const sx = (nx - view[0])/steps; const sy = (ny - view[1])/steps;
+      const iv = setInterval(()=>{ i++; const vx = view[0]+sx*i; const vy = view[1]+sy*i; if(Number.isFinite(vx) && Number.isFinite(vy)) svg.setAttribute('viewBox', `${vx} ${vy} ${view[2]} ${view[3]}`); if(i>=steps) clearInterval(iv); }, 28);
+      // show tooltip
+      const bg=el.querySelector('.tooltip-bg'); const tt=el.querySelector('.tooltip-text'); if(bg) bg.setAttribute('opacity','1'); if(tt) tt.setAttribute('opacity','1');
+    }
+
+    gyms.forEach(addMarker);
+
+    const q = document.getElementById('q'); const openNow = document.getElementById('openNow');
+    // debounce helper
+    function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+    q.addEventListener('input',debounce(()=>applyFilters(),200)); openNow.addEventListener('change',()=>applyFilters()); document.getElementById('reset').addEventListener('click',e=>{ e.preventDefault(); q.value=''; openNow.checked=false; applyFilters(); });
+
+    function applyFilters(){ const term=(q.value||'').toLowerCase(); listEl.innerHTML=''; gyms.forEach(g=>{ const hay=(g.name+' '+g.city+' '+g.address).toLowerCase(); const show = (!term || hay.includes(term)) && (!openNow.checked || nowIsBetween(g.open,g.close)); markerEls[g.id].style.display = show ? null : 'none'; if(show){ const item=document.createElement('div'); item.className='branch'; item.dataset.id=g.id; const open = nowIsBetween(g.open,g.close); item.innerHTML=`<strong>${escapeHtml(g.name)}</strong><div class="meta">${escapeHtml(g.city)} — ${escapeHtml(g.address)}</div><div class="meta">Hours: ${g.open} — ${g.close} <span class="status ${open? '':'closed'}">${open? 'OPEN':'CLOSED'}</span></div>`; item.addEventListener('click',()=>focusOn(g.id)); listEl.appendChild(item); } }); }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+    // keyboard navigation for branch list: ArrowUp / ArrowDown
+    listEl.addEventListener('keydown', (e)=>{
+      const active = document.activeElement;
+      if(!active || !active.classList || !active.classList.contains('branch')) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); const next = active.nextElementSibling; if(next){ next.focus(); } }
+      if(e.key === 'ArrowUp'){ e.preventDefault(); const prev = active.previousElementSibling; if(prev){ prev.focus(); } }
+    });
+
+    // simple zoom controls by scaling viewBox
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    function setZoom(factor){ const view = svg.getAttribute('viewBox').split(' ').map(Number); const cx = view[0] + view[2]/2; const cy = view[1] + view[3]/2; const nw = Math.max(240, Math.min(1000, view[2]*factor)); const nh = Math.max(168, Math.min(700, view[3]*factor)); const nx = Math.max(0, Math.min(1000-nw, cx - nw/2)); const ny = Math.max(0, Math.min(700-nh, cy - nh/2)); svg.setAttribute('viewBox', `${nx} ${ny} ${nw} ${nh}`); }
+    zoomIn.addEventListener('click', ()=> setZoom(0.75)); zoomOut.addEventListener('click', ()=> setZoom(1.35));
+
+    // Drag-to-pan support for the SVG map
+    (function enablePanning(){
+      let isPanning = false;
+      let startX = 0, startY = 0;
+      let startView = [0,0,1000,700];
+      function getView(){ return svg.getAttribute('viewBox').split(' ').map(Number); }
+      svg.style.cursor = 'grab';
+      svg.addEventListener('mousedown',(e)=>{
+        if(e.button !== 0) return; // left button only
+        isPanning = true;
+        svg.style.cursor = 'grabbing';
+        startX = e.clientX; startY = e.clientY;
+        startView = getView();
+      });
+      window.addEventListener('mousemove',(e)=>{
+        if(!isPanning) return;
+        const dx = e.clientX - startX; const dy = e.clientY - startY;
+        const view = startView.slice();
+        const scaleX = view[2] / svg.clientWidth; const scaleY = view[3] / svg.clientHeight;
+        const nx = Math.max(0, Math.min(1000 - view[2], view[0] - dx*scaleX));
+        const ny = Math.max(0, Math.min(700 - view[3], view[1] - dy*scaleY));
+        svg.setAttribute('viewBox', `${nx} ${ny} ${view[2]} ${view[3]}`);
+      });
+      window.addEventListener('mouseup',()=>{ if(isPanning){ isPanning=false; svg.style.cursor='grab'; } });
+      // touch support
+      svg.addEventListener('touchstart',(e)=>{ if(e.touches.length===1){ const t=e.touches[0]; isPanning=true; startX=t.clientX; startY=t.clientY; startView=getView(); } });
+      svg.addEventListener('touchmove',(e)=>{ if(!isPanning) return; const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY; const view=startView.slice(); const scaleX=view[2]/svg.clientWidth; const scaleY=view[3]/svg.clientHeight; const nx = Math.max(0, Math.min(1000-view[2], view[0] - dx*scaleX)); const ny = Math.max(0, Math.min(700-view[3], view[1] - dy*scaleY)); svg.setAttribute('viewBox', `${nx} ${ny} ${view[2]} ${view[3]}`); e.preventDefault(); });
+      svg.addEventListener('touchend',()=>{ isPanning=false; });
+    })();
+  </script>
+</body>
+</html>

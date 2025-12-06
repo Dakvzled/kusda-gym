@@ -1,0 +1,243 @@
+/* Import Google Fonts - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+/* --- Reset & Base Styles --- */
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* UPDATE VARIABEL WARNA */
+:root {
+    /* Warna utama baru sesuai request (#00bfa6) */
+    --primary-teal: #00bfa6; 
+    /* Warna untuk background gradient kuning */
+    --bg-yellow-dark: #fbc02d;
+    --bg-yellow-light: #fff9c4;
+    
+    --light-gray: #f0f2f5;
+    --text-dark: #333;
+}
+
+body {
+  /* UPDATE: Background Gradient diubah menjadi Kuning */
+  /* Menggunakan sedikit warna gelap di sudut agar tulisan putih tetap kontras */
+  background: linear-gradient(135deg, #827717, var(--bg-yellow-dark), var(--bg-yellow-light));
+  background-size: 300% 300%;
+  animation: gradientBG 15s ease infinite;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* --- Main Wrapper --- */
+.main-wrapper {
+    display: flex;
+    width: 1000px;
+    max-width: 100%;
+    min-height: 600px;
+    background: #fff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+/* --- Left Panel --- */
+.left-panel {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand-header {
+    margin-bottom: 40px;
+}
+
+/* UPDATE: Warna Judul KUSDA GYM */
+.brand-header h1 {
+    font-weight: 800; 
+    font-size: 3rem;
+    /* Menggunakan warna solid sesuai request */
+    color: var(--primary-teal);
+    letter-spacing: -1px;
+    line-height: 1.2;
+    /* Gradasi teks sebelumnya dihapus agar warna solid terlihat jelas */
+}
+
+.brand-header p {
+    color: #777;
+    font-weight: 400;
+    margin-top: 5px;
+}
+
+.form-box h2#title {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+/* --- Input Fields --- */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  max-height: 65px; 
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  position: relative;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid var(--light-gray);
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+/* UPDATE: Warna saat input difokuskan mengikuti tema baru */
+.input-field input:focus {
+    border-color: var(--primary-teal);
+    background-color: #fff;
+    /* Shadow menggunakan warna teal (rgb dari #00bfa6) */
+    box-shadow: 0 5px 15px rgba(0, 191, 166, 0.15);
+}
+
+.input-field input::placeholder {
+    color: #aaa;
+    font-weight: 400;
+}
+
+#message {
+    height: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.note {
+    font-size: 12px;
+    color: #999;
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* --- Buttons --- */
+.btn-field {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  background-color: var(--light-gray);
+  padding: 5px;
+  border-radius: 15px;
+}
+
+.btn-field button {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  font-weight: 600;
+  font-size: 16px;
+  background: transparent;
+  color: #777;
+}
+
+/* UPDATE: Warna Tombol Aktif */
+.btn-field button.active {
+  background: var(--primary-teal); /* Warna #00bfa6 */
+  color: #fff;
+  /* Shadow disesuaikan dengan warna tombol */
+  box-shadow: 0 4px 15px rgba(0, 191, 166, 0.4);
+}
+
+.btn-field button:hover:not(.active) {
+    background-color: rgba(0,0,0,0.05);
+    color: var(--text-dark);
+}
+
+
+/* --- Right Panel --- */
+.right-panel {
+    flex: 1;
+    position: relative;
+    /* Gambar Gym */
+    background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+    background-size: cover;
+    background-position: center;
+    min-height: 400px;
+}
+
+/* UPDATE: Overlay di atas gambar */
+.image-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    /* Gradasi diubah dari hitam ke warna teal transparan agar senada */
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0, 191, 166, 0.3));
+    display: flex;
+    align-items: flex-end;
+    padding: 50px;
+    color: #fff;
+}
+
+.overlay-content h2 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+.overlay-content p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+    .main-wrapper {
+        flex-direction: column-reverse;
+        width: 450px;
+    }
+
+    .right-panel {
+        min-height: 250px;
+        flex: none;
+        height: 250px;
+    }
+    
+    .left-panel {
+        padding: 40px 30px;
+    }
+
+    .brand-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .overlay-content h2 {
+        font-size: 1.8rem;
+    }
+}
